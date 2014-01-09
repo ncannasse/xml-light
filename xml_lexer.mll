@@ -68,14 +68,22 @@ and current_line_start = ref 0
 
 let tmp = Buffer.create 200
 
-let idents = Hashtbl.create 0
 
+let entities = [
+  "gt"  ,62, ">";
+  "lt"  ,60, "<";
+  "amp" ,38, "&";
+  "apos",39, "'";
+  "quot",34, "\"";
+]
+
+let idents = Hashtbl.create 0
 let _ = begin
-	Hashtbl.add idents "gt;" ">";
-	Hashtbl.add idents "lt;" "<";
-	Hashtbl.add idents "amp;" "&";
-	Hashtbl.add idents "apos;" "'";
-	Hashtbl.add idents "quot;" "\"";
+  List.iter (fun (str,code,res) ->
+      Hashtbl.add idents (str^";") res;
+      if code > 0
+      then Hashtbl.add idents ("#" ^ string_of_int code ^ ";") res
+    ) entities
 end
 
 let init lexbuf =
