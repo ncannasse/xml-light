@@ -1,0 +1,16 @@
+*.ml
+*.mli
+*.byte
+*.native
+*.cmi
+*.cmo
+*.cma
+*.cmx
+*.cmxs
+*.cmxa
+*~
+*.o
+*.a
+*.exe
+META
+doc
