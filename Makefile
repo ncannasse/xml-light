@@ -38,9 +38,7 @@ wininstall: all opt
 	cp xml-light.cmxa xml-light.lib xml-light.cma xml.mli xmlParser.mli dtd.mli xml.cmi xmlParser.cmi dtd.cmi xml.cmx dtd.cmx xmlParser.cmx c:\ocaml\lib
 
 install_ocamlfind: all opt
-	cp META.in META
-	sed -itmp "s|@VERSION@|$(VERSION)|g" META
-	rm -rf METAtmp
+	sed "s|@VERSION@|$(VERSION)|g" < META.in > META
 	$(OCAMLFIND) install xml-light META xml-light.a xml-light.cma xml-light.cmxa $(CMXS) xml.cmx dtd.cmx xmlParser.cmx xml.mli xmlParser.mli dtd.mli xml.cmi xmlParser.cmi dtd.cmi
 
 doc:
