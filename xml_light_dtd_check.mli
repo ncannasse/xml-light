@@ -1,6 +1,5 @@
 open Xml_light_types
-
-type 'a map = 'a Map.Make(String).t
+open Xml_light_utils
 
 type checked = private {
 	c_elements : dtd_element_type map;
