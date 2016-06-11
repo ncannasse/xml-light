@@ -21,17 +21,17 @@
  * MA 02110-1301 USA
  *)
 
-open Xml
+open Xml_light_types
 open Printf
 
-type parse_error_msg =
+type parse_error_msg = Xml_light_errors.dtd_parse_error_msg =
 	| InvalidDTDDecl
 	| InvalidDTDElement
 	| InvalidDTDAttribute
 	| InvalidDTDTag
 	| DTDItemExpected
 
-type check_error =
+type check_error = Xml_light_errors.dtd_check_error =
 	| ElementDefinedTwice of string
 	| AttributeDefinedTwice of string * string
 	| ElementEmptyContructor of string
@@ -39,7 +39,7 @@ type check_error =
 	| ElementNotDeclared of string
 	| WrongImplicitValueForID of string * string
 
-type prove_error =
+type prove_error = Xml_light_errors.dtd_prove_error =
 	| UnexpectedPCData
 	| UnexpectedTag of string
 	| UnexpectedAttribute of string
@@ -50,7 +50,7 @@ type prove_error =
 	| DuplicateID of string
 	| MissingID of string
 
-type dtd_child =
+type dtd_child = Xml_light_types.dtd_child =
 	| DTDTag of string
 	| DTDPCData
 	| DTDOptional of dtd_child
@@ -59,25 +59,25 @@ type dtd_child =
 	| DTDChoice of dtd_child list
 	| DTDChildren of dtd_child list
 
-type dtd_element_type =
+type dtd_element_type = Xml_light_types.dtd_element_type =
 	| DTDEmpty
 	| DTDAny
 	| DTDChild of dtd_child
 
-type dtd_attr_default =
+type dtd_attr_default = Xml_light_types.dtd_attr_default =
 	| DTDDefault of string
 	| DTDRequired
 	| DTDImplied
 	| DTDFixed of string
 
-type dtd_attr_type =
+type dtd_attr_type = Xml_light_types.dtd_attr_type =
 	| DTDCData
 	| DTDNMToken
 	| DTDEnum of string list
 	| DTDID
 	| DTDIDRef
 
-type dtd_item =
+type dtd_item = Xml_light_types.dtd_item =
 	| DTDAttribute of string * string * dtd_attr_type * dtd_attr_default
 	| DTDElement of string * dtd_element_type
 
@@ -87,18 +87,18 @@ type dtd_result =
 	| DTDMatched
 	| DTDMatchedResult of dtd_child
 
-type error_pos = {
+type error_pos = Xml_light_errors.error_pos = {
 	eline : int;
 	eline_start : int;
 	emin : int;
 	emax : int;
 }
 
-type parse_error = parse_error_msg * Xml.error_pos
+type parse_error = parse_error_msg * error_pos
 
-exception Parse_error of parse_error
-exception Check_error of check_error
-exception Prove_error of prove_error
+exception Parse_error = Xml_light_errors.Dtd_parse_error
+exception Check_error = Xml_light_errors.Dtd_check_error
+exception Prove_error = Xml_light_errors.Dtd_prove_error
 
 type dtd = dtd_item list
 
@@ -106,10 +106,7 @@ module StringMap = Map.Make(String)
 
 type 'a map = 'a StringMap.t ref
 
-type checked = {
-	c_elements : dtd_element_type map;
-	c_attribs : (dtd_attr_type * dtd_attr_default) map map;
-}
+type checked = Xml_light_dtd_check.checked
 
 type dtd_state = {
 	elements : dtd_element_type map;
@@ -118,11 +115,6 @@ type dtd_state = {
 	mutable curtag : string;
 	state : (string * dtd_element_type) Stack.t;
 }
-
-let file_not_found = ref (fun _ -> assert false)
-
-let _raises e =
-	file_not_found := e
 
 let create_map() = ref StringMap.empty
 
@@ -141,13 +133,8 @@ let fold_map f m = StringMap.fold f (!m)
 let mem_map m k = StringMap.mem k (!m)
 
 let pos source =
-	let line, lstart, min, max = Xml_lexer.pos source in
-	(Obj.magic {
-		eline = line;
-		eline_start = lstart;
-		emin = min;
-		emax = max;
-	} : Xml.error_pos)
+	let eline, eline_start, emin, emax = Xml_lexer.pos source in
+	{ eline; eline_start; emin; emax }
 
 let convert = function
 	| Xml_lexer.EInvalidDTDDecl -> InvalidDTDDecl
@@ -156,11 +143,10 @@ let convert = function
 	| Xml_lexer.EDTDItemExpected -> DTDItemExpected
 	| Xml_lexer.EInvalidDTDAttribute -> InvalidDTDAttribute
 
-let parse source =
+let parse source : dtd =
 	try
 		Xml_lexer.init source;
-		(* local cast Dtd.dtd -> dtd *)
-		let dtd = (Obj.magic Xml_lexer.dtd source : dtd) in
+		let dtd = Xml_lexer.dtd source in
 		Xml_lexer.close source;
 		dtd
 	with
@@ -172,7 +158,10 @@ let parse_string s = parse (Lexing.from_string s)
 let parse_in ch = parse (Lexing.from_channel ch)
 
 let parse_file fname =
-	let ch = (try open_in fname with Sys_error _ -> raise (!file_not_found fname)) in
+	let ch =
+		try open_in fname with Sys_error _ ->
+			raise (Xml_light_errors.File_not_found fname)
+	in
 	try
 		let x = parse (Lexing.from_channel ch) in
 		close_in ch;
@@ -182,97 +171,12 @@ let parse_file fname =
 			close_in ch;
 			raise e
 
-let check dtd =
-	let attribs = create_map() in
-	let hdone = create_map() in
-	let htodo = create_map() in
-	let ftodo tag from =
-		try
-			ignore(find_map hdone tag);
-		with
-			Not_found ->
-				try
-					match find_map htodo tag with
-					| None -> set_map htodo tag from
-					| Some _ -> ()
-				with
-					Not_found ->
-						set_map htodo tag from
-	in
-	let fdone tag edata =
-		try
-			ignore(find_map hdone tag);
-			raise (Check_error (ElementDefinedTwice tag));
-		with
-			Not_found ->
-				unset_map htodo tag;
-				set_map hdone tag edata
-	in
-	let fattrib tag aname adata =
-		(match adata with
-	    | DTDID,DTDImplied -> ()
-	    | DTDID,DTDRequired -> ()
-	    | DTDID,_ -> raise (Check_error (WrongImplicitValueForID (tag,aname)))
-	    | _ -> ());
-		let h = (try
-				find_map attribs tag
-			with
-				Not_found ->
-					let h = create_map() in
-					set_map attribs tag h;
-					h) in
-		try
-			ignore(find_map h aname);
-			raise (Check_error (AttributeDefinedTwice (tag,aname)));
-		with
-			Not_found ->
-				set_map h aname adata
-	in
-	let check_item = function
-		| DTDAttribute (tag,aname,atype,adef) ->
-			let utag = String.uppercase_ascii tag in
-			ftodo utag None;
-			fattrib utag (String.uppercase_ascii aname) (atype,adef)
-		| DTDElement (tag,etype) ->
-			let utag = String.uppercase_ascii tag in
-			fdone utag etype;
-			let check_type = function
-				| DTDEmpty -> ()
-				| DTDAny -> ()
-				| DTDChild x ->
-					let rec check_child = function
-						| DTDTag s -> ftodo (String.uppercase_ascii s) (Some utag)
-						| DTDPCData -> ()
-						| DTDOptional c
-						| DTDZeroOrMore c
-						| DTDOneOrMore c ->
-							check_child c
-						| DTDChoice []
-						| DTDChildren [] ->
-							raise (Check_error (ElementEmptyContructor tag))
-						| DTDChoice l
-						| DTDChildren l ->
-							List.iter check_child l
-					in
-					check_child x
-			in
-			check_type etype
-	in
-	List.iter check_item dtd;
-	iter_map (fun t from ->
-		match from with
-		| None -> raise (Check_error (ElementNotDeclared t))
-		| Some tag -> raise (Check_error (ElementReferenced (t,tag)))
-	) htodo;
-	{
-		c_elements = hdone;
-		c_attribs = attribs;
-	}
+let check = Xml_light_dtd_check.check
 
 let start_prove dtd root =
 	let d = {
-		elements = dtd.c_elements;
-		attribs = dtd.c_attribs;
+		elements = ref dtd.Xml_light_dtd_check.c_elements;
+		attribs = ref (StringMap.map ref dtd.Xml_light_dtd_check.c_attribs);
 		state = Stack.create();
 		current = DTDChild (DTDTag root);
 		curtag = "_root";
@@ -469,7 +373,6 @@ let parse_error_msg = function
 	| DTDItemExpected -> "DTD item expected"
 
 let parse_error (msg,pos) =
-	let pos = (Obj.magic pos : error_pos) in
 	if pos.emin = pos.emax then
 		sprintf "%s line %d character %d" (parse_error_msg msg) pos.eline (pos.emin - pos.eline_start)
 	else

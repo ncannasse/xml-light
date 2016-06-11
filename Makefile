@@ -51,49 +51,112 @@ test.exe: xml-light.cma
 test_opt.exe: xml-light.cmxa
 	$(OCAMLOPT) xml-light.cmxa test.ml -o test_opt.exe
 
-xml-light.cma: xml_parser.cmo xml_lexer.cmo dtd.cmo xmlParser.cmo xml.cmo 
-	$(OCAMLC) -o xml-light.cma $(LFLAGS) $(LIBS) xml_parser.cmo xml_lexer.cmo dtd.cmo xmlParser.cmo xml.cmo
+xml-light.cma: xml_light_errors.cmo xml_light_dtd_check.cmo \
+  xml_parser.cmo xml_lexer.cmo dtd.cmo xmlParser.cmo xml.cmo
+	$(OCAMLC) -o xml-light.cma $(LFLAGS) $(LIBS) $^
 
-xml-light.cmxa: xml_parser.cmx xml_lexer.cmx dtd.cmx xmlParser.cmx xml.cmx 
-	$(OCAMLOPT) -o xml-light.cmxa $(LFLAGS) $(LIBS) xml_parser.cmx xml_lexer.cmx dtd.cmx xmlParser.cmx xml.cmx
+xml-light.cmxa: xml_light_errors.cmx xml_light_dtd_check.cmx \
+  xml_parser.cmx xml_lexer.cmx dtd.cmx xmlParser.cmx xml.cmx
+	$(OCAMLOPT) -o xml-light.cmxa $(LFLAGS) $(LIBS) $^
 
 xml-light.cmxs: xml-light.cmxa
 	$(OCAMLOPT) -shared -linkall -I . -o xml-light.cmxs xml-light.cmxa
 
-dtd.cmo: xml.cmi xml_lexer.cmi dtd.cmi
-
-dtd.cmx: xml.cmi xml_lexer.cmi dtd.cmi
-
-xml.cmo: dtd.cmi xmlParser.cmi xml_lexer.cmi xml.cmi
-
-xml.cmx: dtd.cmi xmlParser.cmi xml_lexer.cmi xml.cmi
-
-xmlParser.cmo: dtd.cmi xml.cmi xml_lexer.cmi xmlParser.cmi
-
-xmlParser.cmx: dtd.cmi xml.cmi xml_lexer.cmi xmlParser.cmi
-
-dtd.cmi: xml.cmi
-
-xml.cmi: 
-
-xmlParser.cmi: dtd.cmi xml.cmi
-
-xml_lexer.cmi: dtd.cmi
-
-xml_parser.cmo: xml_parser.ml dtd.cmi xml_parser.mli xml_parser.cmi
-
-xml_parser.cmx: xml_parser.ml dtd.cmi xml_parser.mli xml_parser.cmi
-
-xml_parser.cmi: xml_parser.mli dtd.cmi xml.cmi
-
-xml_lexer.cmo: xml_lexer.ml xml_lexer.cmi
-
-xml_lexer.cmx: xml_lexer.ml xml_lexer.cmi
+## The following is the output of 'make xml_lexer.ml xml_parser.ml; ocamldep *.ml *.mli'
+# BEGIN OCAMLDEP OUTPUT
+dtd.cmo : \
+    xml_light_types.cmi \
+    xml_light_errors.cmo \
+    xml_light_dtd_check.cmi \
+    xml_lexer.cmi \
+    dtd.cmi
+dtd.cmx : \
+    xml_light_types.cmi \
+    xml_light_errors.cmx \
+    xml_light_dtd_check.cmx \
+    xml_lexer.cmx \
+    dtd.cmi
+dtd.cmi : \
+    xml_light_types.cmi \
+    xml_light_errors.cmo \
+    xml_light_dtd_check.cmi
+test.cmo : \
+    xml.cmi \
+    dtd.cmi
+test.cmx : \
+    xml.cmx \
+    dtd.cmx
+xml.cmo : \
+    xml_light_types.cmi \
+    xml_light_errors.cmo \
+    xml_lexer.cmi \
+    xmlParser.cmi \
+    dtd.cmi \
+    xml.cmi
+xml.cmx : \
+    xml_light_types.cmi \
+    xml_light_errors.cmx \
+    xml_lexer.cmx \
+    xmlParser.cmx \
+    dtd.cmx \
+    xml.cmi
+xml.cmi : \
+    xml_light_types.cmi \
+    xml_light_errors.cmo
+xmlParser.cmo : \
+    xml_light_types.cmi \
+    xml_light_errors.cmo \
+    xml_light_dtd_check.cmi \
+    xml_lexer.cmi \
+    dtd.cmi \
+    xmlParser.cmi
+xmlParser.cmx : \
+    xml_light_types.cmi \
+    xml_light_errors.cmx \
+    xml_light_dtd_check.cmx \
+    xml_lexer.cmx \
+    dtd.cmx \
+    xmlParser.cmi
+xmlParser.cmi : \
+    xml_light_types.cmi \
+    xml_light_dtd_check.cmi
+xml_lexer.cmo : \
+    xml_parser.cmi \
+    xml_light_types.cmi \
+    xml_lexer.cmi
+xml_lexer.cmx : \
+    xml_parser.cmx \
+    xml_light_types.cmi \
+    xml_lexer.cmi
+xml_lexer.cmi : \
+    xml_light_types.cmi
+xml_light_dtd_check.cmo : \
+    xml_light_types.cmi \
+    xml_light_errors.cmo \
+    xml_light_dtd_check.cmi
+xml_light_dtd_check.cmx : \
+    xml_light_types.cmi \
+    xml_light_errors.cmx \
+    xml_light_dtd_check.cmi
+xml_light_dtd_check.cmi : \
+    xml_light_types.cmi
+xml_light_errors.cmo :
+xml_light_errors.cmx :
+xml_light_types.cmi :
+xml_parser.cmo : \
+    xml_light_types.cmi \
+    xml_parser.cmi
+xml_parser.cmx : \
+    xml_light_types.cmi \
+    xml_parser.cmi
+xml_parser.cmi : \
+    xml_light_types.cmi
+# END OCAMLDEP OUTPUT
 
 clean:
-	rm -f xml-light.cma test.exe dtd.cmo dtd.cmi test.cmo test.cmi xml.cmo xml.cmi xmlParser.cmo xmlParser.cmi dtd.cmi xml.cmi xmlParser.cmi xml_lexer.cmi xml_lexer.cmo xml_lexer.ml xml_parser.mli xml_parser.cmi xml_parser.ml xml_parser.cmo
-	rm -f xml-light.lib xml-light.a xml-light.cmxa test_opt.exe dtd.cmx dtd.obj dtd.o test.cmx test.obj test.o xml.cmx xml.obj xml.o xmlParser.cmx xmlParser.obj xmlParser.o xml_lexer.cmx xml_lexer.obj xml_lexer.o xml_parser.cmx xml_parser.obj xml_parser.o
-
+	rm -f xml_lexer.ml xml_parser.mli xml_parser.ml
+	rm -f xml-light.cma test.exe *.cmo *.cmi
+	rm -f xml-light.lib xml-light.a xml-light.cmxa xml-light.cmxs test_opt.exe *.cmx *.obj *.o
 
 # SUFFIXES
 .ml.cmo:
@@ -103,11 +166,10 @@ clean:
 	$(OCAMLOPT) $(CFLAGS) -c $<
 
 .mli.cmi:
-	$(OCAMLC) $(CFLAGS) $<
+	$(OCAMLC) $(CFLAGS) -c $<
 
-.mll.ml:
+xml_lexer.ml xml_lexer.mli: xml_lexer.mll
 	ocamllex $<
 
-.mly.ml:
+xml_parser.ml xml_parser.mli: xml_parser.mly
 	ocamlyacc $<
-

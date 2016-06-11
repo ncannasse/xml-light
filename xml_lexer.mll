@@ -23,7 +23,7 @@
 
 open Lexing
 open Xml_parser
-open Dtd
+open Xml_light_types
 
 type error =
 	| EUnterminatedComment
