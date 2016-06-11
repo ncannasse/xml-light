@@ -132,10 +132,6 @@ let fold_map f m = StringMap.fold f (!m)
 
 let mem_map m k = StringMap.mem k (!m)
 
-let pos source =
-	let eline, eline_start, emin, emax = Xml_lexer.pos source in
-	{ eline; eline_start; emin; emax }
-
 let convert = function
 	| Xml_lexer.EInvalidDTDDecl -> InvalidDTDDecl
 	| Xml_lexer.EInvalidDTDElement -> InvalidDTDElement
@@ -152,7 +148,8 @@ let parse source : dtd =
 	with
 		| Xml_lexer.DTDError e ->
 			Xml_lexer.close source;
-			raise (Parse_error (convert e,pos source))
+			let pos = Xml_lexer.error_pos source in
+			raise (Parse_error (convert e, pos))
 
 let parse_string s = parse (Lexing.from_string s)
 let parse_in ch = parse (Lexing.from_channel ch)

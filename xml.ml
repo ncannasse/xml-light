@@ -57,15 +57,6 @@ exception No_attribute of string
 
 let default_parser = XmlParser.make()
 
-let pos source =
-	let line, lstart, min, max = Xml_lexer.pos source in
-	{
-		eline = line;
-		eline_start = lstart;
-		emin = min;
-		emax = max;
-	}
-
 let parse = XmlParser.parse
 
 let parse_in ch = parse default_parser (XmlParser.SChannel ch)

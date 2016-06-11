@@ -60,3 +60,6 @@ val token : Lexing.lexbuf -> token
 val dtd : Lexing.lexbuf -> Xml_light_types.dtd
 val pos : Lexing.lexbuf -> pos
 val restore : pos -> unit
+
+val error_pos_of_pos : pos -> Xml_light_errors.error_pos
+val error_pos : Lexing.lexbuf -> Xml_light_errors.error_pos
