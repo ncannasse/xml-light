@@ -23,18 +23,11 @@
 
 open Printf
 
-type xml = 
+type xml = Xml_light_types.xml =
 	| Element of (string * (string * string) list * xml list)
 	| PCData of string
 
-type error_pos = {
-	eline : int;
-	eline_start : int;
-	emin : int;
-	emax : int;
-}
-
-type error_msg =
+type error_msg = Xml_light_errors.xml_error_msg =
 	| UnterminatedComment
 	| UnterminatedString
 	| UnterminatedEntity
@@ -45,6 +38,13 @@ type error_msg =
 	| AttributeValueExpected
 	| EndOfTagExpected of string
 	| EOFExpected
+
+type error_pos = Xml_light_errors.error_pos = {
+	eline : int;
+	eline_start : int;
+	emin : int;
+	emax : int;
+}
 
 type error = error_msg * error_pos
 
@@ -66,9 +66,7 @@ let pos source =
 		emax = max;
 	}
 
-let parse (p:XmlParser.t) (source:XmlParser.source) =
-	(* local cast Xml.xml -> xml *)
-	(Obj.magic XmlParser.parse p source : xml)
+let parse = XmlParser.parse
 
 let parse_in ch = parse default_parser (XmlParser.SChannel ch)
 let parse_string str = parse default_parser (XmlParser.SString str)
@@ -76,7 +74,7 @@ let parse_string str = parse default_parser (XmlParser.SString str)
 let parse_file f =
 	let p = XmlParser.make() in
 	let path = Filename.dirname f in
-	XmlParser.resolve p (fun file -> 
+	XmlParser.resolve p (fun file ->
 		let name = (match path with "." -> file | _ -> path ^ "/" ^ file) in
 		Dtd.check (Dtd.parse_file name)
 	);
@@ -99,10 +97,10 @@ let error (msg,pos) =
 		sprintf "%s line %d character %d" (error_msg msg) pos.eline (pos.emin - pos.eline_start)
 	else
 		sprintf "%s line %d characters %d-%d" (error_msg msg) pos.eline (pos.emin - pos.eline_start) (pos.emax - pos.eline_start)
-	
+
 let line e = e.eline
 
-let range e = 
+let range e =
 	e.emin - e.eline_start , e.emax - e.eline_start
 
 let abs_range e =
@@ -112,11 +110,11 @@ let tag = function
 	| Element (tag,_,_) -> tag
 	| x -> raise (Not_element x)
 
-let pcdata = function 
+let pcdata = function
 	| PCData text -> text
 	| x -> raise (Not_pcdata x)
 
-let attribs = function 
+let attribs = function
 	| Element (_,attr,_) -> attr
 	| x -> raise (Not_element x)
 
@@ -157,7 +155,7 @@ let tmp = Buffer.create 200
 
 let buffer_pcdata text =
 	let l = String.length text in
-	for p = 0 to l-1 do 
+	for p = 0 to l-1 do
 		match text.[p] with
 		| '>' -> Buffer.add_string tmp "&gt;"
 		| '<' -> Buffer.add_string tmp "&lt;"
@@ -184,7 +182,7 @@ let buffer_attr (n,v) =
 	done;
 	Buffer.add_char tmp '"'
 
-let to_string x = 
+let to_string x =
 	let pcdata = ref false in
 	let rec loop = function
 		| Element (tag,alist,[]) ->
@@ -258,11 +256,3 @@ let to_string_fmt x =
 	s
 
 ;;
-XmlParser._raises (fun x p -> 
-	(* local cast : Xml.error_msg -> error_msg *)
-	Error ((Obj.magic x : error_msg),pos p))
-	(fun f -> File_not_found f)
-	(fun x p -> Dtd.Parse_error (x,
-	(* local cast : Xml.error_pos -> error_pos *)
-		(Obj.magic (pos p))));
-Dtd._raises (fun f -> File_not_found f);

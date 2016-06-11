@@ -43,7 +43,7 @@ exception DTDError of dtd_error
 
 type dtd_decl =
 	| DTDFile of string
-	| DTDData of Dtd.dtd
+	| DTDData of Xml_light_types.dtd
 
 type token =
 	| Tag of string * (string * string) list * bool
@@ -57,6 +57,6 @@ type pos = int * int * int * int
 val init : Lexing.lexbuf -> unit 
 val close : Lexing.lexbuf -> unit
 val token : Lexing.lexbuf -> token
-val dtd : Lexing.lexbuf -> Dtd.dtd
+val dtd : Lexing.lexbuf -> Xml_light_types.dtd
 val pos : Lexing.lexbuf -> pos
 val restore : pos -> unit
