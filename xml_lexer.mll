@@ -116,6 +116,16 @@ let error lexbuf e =
 let dtd_error lexbuf e =
 	last_pos := lexeme_start lexbuf;
 	raise (DTDError e)
+
+let error_pos_of_pos (line, lstart, min, max) =
+	{
+		Xml_light_errors.eline = line;
+		Xml_light_errors.eline_start = lstart;
+		Xml_light_errors.emin = min;
+		Xml_light_errors.emax = max;
+	}
+
+let error_pos lexbuf = error_pos_of_pos (pos lexbuf)
 }
 
 let newline = ['\n']
