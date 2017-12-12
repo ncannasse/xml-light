@@ -35,11 +35,14 @@
 
 (** {6 Xml Data Structure} *)
 
+type pos = {line_number : int;
+            column_number : int}
+
 (** An Xml node is either
 	[Element (tag-name, attributes, children)] or [PCData text] *)
 type xml = 
-	| Element of (string * (string * string) list * xml list)
-	| PCData of string
+	| Element of string * (string * (string * pos option)) list * xml list * pos
+	| PCData of string * pos option
 
 (** {6 Xml Parsing} *)
 
@@ -129,14 +132,14 @@ val pcdata : xml -> string
 (** [attribs xdata] returns the attribute list of the xml node.
  First string if the attribute name, second string is attribute value.
  Raise {!Xml.Not_element} if the xml is not an element *)
-val attribs : xml -> (string * string) list 
+val attribs : xml -> (string * (string * pos option)) list
 
 (** [attrib xdata "href"] returns the value of the ["href"]
  attribute of the xml node (attribute matching is case-insensitive).
  Raise {!Xml.No_attribute} if the attribute does not exists in the node's
  attribute list 
  Raise {!Xml.Not_element} if the xml is not an element *)
-val attrib : xml -> string -> string
+val attrib : xml -> string -> string * pos option
 
 (** [children xdata] returns the children list of the xml node
  Raise {!Xml.Not_element} if the xml is not an element *)

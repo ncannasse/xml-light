@@ -82,9 +82,24 @@ let push t s =
 
 let rec read_node s =
 	match pop s with
-	| Xml_lexer.PCData s -> PCData s
-	| Xml_lexer.Tag (tag, attr, true) -> Element (tag, attr, [])
-	| Xml_lexer.Tag (tag, attr, false) -> Element (tag, attr, read_elems ~tag s)
+	| Xml_lexer.PCData (s, (line_number, line_start, _, start_pos)) ->
+           PCData (s, Some {line_number;
+                            column_number = start_pos - line_start})
+	| Xml_lexer.Tag (tag, attr, true, (line_number, line_number_start, start_pos, end_pos)) ->
+           let attr = List.map (fun (name, (value, (line_number, line_start, start_pos, x))) ->
+                                  name, (value, Some {line_number;
+                                                      column_number = start_pos - line_start + 1}))
+                               attr in
+           Element (tag, attr, [], {line_number;
+                                    column_number = start_pos - line_number_start + 1})
+	| Xml_lexer.Tag (tag, attr, false, (line_number, line_number_start, start_pos, end_pos)) ->
+           let attr = List.map (fun (name, (value, (line_number, line_start, start_pos, x))) ->
+                                  name, (value, Some {line_number;
+                                                      column_number = start_pos - line_start + 1}))
+                               attr in
+           Element (tag, attr, read_elems ~tag s,
+                    {line_number;
+                     column_number = start_pos - line_number_start + 1})
 	| t ->
 		push t s;
 		raise NoMoreData
@@ -94,15 +109,15 @@ and
 		(try
 			while true do
 				match s.xparser.concat_pcdata , read_node s , !elems with
-				| true , PCData c , (PCData c2) :: q ->
-					elems := PCData (sprintf "%s\n%s" c2 c) :: q
+				| true , PCData (value1, pos) , PCData (value2, _) :: q ->
+					elems := PCData (sprintf "%s\n%s" value2 value1, pos) :: q
 				| _ , x , l ->
 					elems := x :: l
 			done
 		with
 			NoMoreData -> ());
 		match pop s with
-		| Xml_lexer.Endtag s when Some s = tag -> List.rev !elems
+		| Xml_lexer.Endtag (s, _) when Some s = tag -> List.rev !elems
 		| Xml_lexer.Eof when tag = None -> List.rev !elems
 		| t ->
 			match tag with
@@ -150,7 +165,9 @@ let do_parse xparser source =
 		let s = { source = source; xparser = xparser; stack = Stack.create(); } in
 		let tk = pop s in
 		(* skip UTF8 BOM *)
-		if tk <> Xml_lexer.PCData "\239\187\191" then push tk s;
+                (match tk with
+                 | Xml_lexer.PCData ("\239\187\191", _) -> ()
+                 | _ -> push tk s);
 		let x = read_xml s in
 		if xparser.check_eof && pop s <> Xml_lexer.Eof then raise (Internal_error EOFExpected);
 		Xml_lexer.close source;

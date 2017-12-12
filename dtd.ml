@@ -374,28 +374,28 @@ let prove_attrib dtd hid hidref attr aname (atype,adef) accu =
 	(match atype, aval with
 	| DTDCData, _ -> ()
 	| DTDNMToken, None -> ()
-	| DTDNMToken, Some v ->
+	| DTDNMToken, Some (v,_) ->
 		for i = 0 to String.length v - 1 do
 			if not (is_nmtoken_char v.[i]) then raise (Prove_error (InvalidAttributeValue aname));
 		done
 	| DTDEnum l, None -> ()
-	| DTDEnum l, Some v ->
+	| DTDEnum l, Some (v,_) ->
 		if not (List.exists ((=) v) l) then raise (Prove_error (InvalidAttributeValue aname))
 	| DTDID, None -> ()
-	| DTDID, Some id ->
+	| DTDID, Some (id,_) ->
 		if mem_map hid id then raise (Prove_error (DuplicateID id));
 		set_map hid id ()
 	| DTDIDRef, None -> ()
-	| DTDIDRef, Some idref ->
+	| DTDIDRef, Some (idref,_) ->
 		set_map hidref idref ());
 	match adef, aval with
 	| DTDRequired, None -> raise (Prove_error (RequiredAttribute aname))
-	| DTDFixed v, Some av when v <> av -> raise (Prove_error (InvalidAttributeValue aname))
+	| DTDFixed v, Some (av,_) when v <> av -> raise (Prove_error (InvalidAttributeValue aname))
 	| DTDImplied, None -> accu
 	| DTDFixed v , None
+	| DTDDefault v, None -> (aname,(v,None)) :: accu
 	| DTDDefault _, Some v
-	| DTDDefault v, None
-	| DTDRequired,  Some v
+	| DTDRequired, Some v
 	| DTDImplied, Some v
 	| DTDFixed _, Some v -> (aname,v) :: accu
 
@@ -406,10 +406,10 @@ let check_attrib ahash (aname,_) =
 		Not_found -> raise (Prove_error (UnexpectedAttribute aname))
 
 let rec do_prove hid hidref dtd = function
-	| PCData s ->
+	| PCData _ as pcdata ->
 		prove_child dtd None;
-		PCData s
-	| Element (tag,attr,childs) ->
+		pcdata
+	| Element (tag,attr,childs,pos) ->
 		let utag = String.uppercase_ascii tag in
 		let uattr = List.map (fun (aname,aval) -> String.uppercase_ascii aname , aval) attr in
 		prove_child dtd (Some utag);
@@ -431,7 +431,7 @@ let rec do_prove hid hidref dtd = function
 					name := t;
 					false
 				| DTDPCData when !childs = [] ->
-					childs := [PCData ""];
+					childs := [PCData ("", None)];
 					true
 				| DTDPCData ->
 					name := "#PCDATA";
@@ -450,7 +450,7 @@ let rec do_prove hid hidref dtd = function
 		let ctag, cur = Stack.pop dtd.state in
 		dtd.curtag <- tag;
 		dtd.current <- cur;
-		Element (tag,attr,!childs)
+		Element (tag,attr,!childs,pos)
 
 let prove dtd root xml =
 	let hid = create_map() in

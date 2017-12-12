@@ -45,14 +45,14 @@ type dtd_decl =
 	| DTDFile of string
 	| DTDData of Dtd.dtd
 
+type pos = int * int * int * int
+
 type token =
-	| Tag of string * (string * string) list * bool
-	| PCData of string
-	| Endtag of string
+	| Tag of string * (string * (string * pos)) list * bool * pos
+	| PCData of string * pos
+	| Endtag of string * pos
 	| DocType of (string * dtd_decl)
 	| Eof
-
-type pos = int * int * int * int
 
 val init : Lexing.lexbuf -> unit 
 val close : Lexing.lexbuf -> unit

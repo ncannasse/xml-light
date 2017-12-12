@@ -23,9 +23,12 @@
 
 open Printf
 
+type pos = {line_number : int;
+            column_number : int}
+
 type xml = 
-	| Element of (string * (string * string) list * xml list)
-	| PCData of string
+	| Element of string * (string * (string * pos option)) list * xml list * pos
+	| PCData of string * pos option
 
 type error_pos = {
 	eline : int;
@@ -109,20 +112,20 @@ let abs_range e =
 	e.emin , e.emax
 
 let tag = function
-	| Element (tag,_,_) -> tag
+	| Element (tag,_,_,_) -> tag
 	| x -> raise (Not_element x)
 
 let pcdata = function 
-	| PCData text -> text
+	| PCData (text,_) -> text
 	| x -> raise (Not_pcdata x)
 
 let attribs = function 
-	| Element (_,attr,_) -> attr
+	| Element (_,attr,_,_) -> attr
 	| x -> raise (Not_element x)
 
 let attrib x att =
 	match x with
-	| Element (_,attr,_) ->
+	| Element (_,attr,_,_) ->
 		(try
 			let att = String.lowercase_ascii att in
 			snd (List.find (fun (n,_) -> String.lowercase_ascii n = att) attr)
@@ -133,7 +136,7 @@ let attrib x att =
 		raise (Not_element x)
 
 let children = function
-	| Element (_,_,clist) -> clist
+	| Element (_,_,clist,_) -> clist
 	| x -> raise (Not_element x)
 
 (*let enum = function
@@ -142,15 +145,15 @@ let children = function
 *)
 
 let iter f = function
-	| Element (_,_,clist) -> List.iter f clist
+	| Element (_,_,clist,_) -> List.iter f clist
 	| x -> raise (Not_element x)
 
 let map f = function
-	| Element (_,_,clist) -> List.map f clist
+	| Element (_,_,clist,_) -> List.map f clist
 	| x -> raise (Not_element x)
 
 let fold f v = function
-	| Element (_,_,clist) -> List.fold_left f v clist
+	| Element (_,_,clist,_) -> List.fold_left f v clist
 	| x -> raise (Not_element x)
 
 let tmp = Buffer.create 200
@@ -171,7 +174,7 @@ let buffer_pcdata text =
 		| c -> Buffer.add_char tmp c
 	done
 
-let buffer_attr (n,v) =
+let buffer_attr (n,(v,_)) =
 	Buffer.add_char tmp ' ';
 	Buffer.add_string tmp n;
 	Buffer.add_string tmp "=\"";
@@ -187,13 +190,13 @@ let buffer_attr (n,v) =
 let to_string x = 
 	let pcdata = ref false in
 	let rec loop = function
-		| Element (tag,alist,[]) ->
+		| Element (tag,alist,[],_) ->
 			Buffer.add_char tmp '<';
 			Buffer.add_string tmp tag;
 			List.iter buffer_attr alist;
 			Buffer.add_string tmp "/>";
 			pcdata := false;
-		| Element (tag,alist,l) ->
+		| Element (tag,alist,l,_) ->
 			Buffer.add_char tmp '<';
 			Buffer.add_string tmp tag;
 			List.iter buffer_attr alist;
@@ -204,7 +207,7 @@ let to_string x =
 			Buffer.add_string tmp tag;
 			Buffer.add_char tmp '>';
 			pcdata := false;
-		| PCData text ->
+		| PCData (text,_) ->
 			if !pcdata then Buffer.add_char tmp ' ';
 			buffer_pcdata text;
 			pcdata := true;
@@ -217,14 +220,14 @@ let to_string x =
 
 let to_string_fmt x =
 	let rec loop ?(newl=false) tab = function
-		| Element (tag,alist,[]) ->
+		| Element (tag,alist,[],_) ->
 			Buffer.add_string tmp tab;
 			Buffer.add_char tmp '<';
 			Buffer.add_string tmp tag;
 			List.iter buffer_attr alist;
 			Buffer.add_string tmp "/>";
 			if newl then Buffer.add_char tmp '\n';
-		| Element (tag,alist,[PCData text]) ->
+		| Element (tag,alist,[PCData (text,_)],_) ->
 			Buffer.add_string tmp tab;
 			Buffer.add_char tmp '<';
 			Buffer.add_string tmp tag;
@@ -235,7 +238,7 @@ let to_string_fmt x =
 			Buffer.add_string tmp tag;
 			Buffer.add_char tmp '>';
 			if newl then Buffer.add_char tmp '\n';
-		| Element (tag,alist,l) ->
+		| Element (tag,alist,l,_) ->
 			Buffer.add_string tmp tab;
 			Buffer.add_char tmp '<';
 			Buffer.add_string tmp tag;
@@ -247,7 +250,7 @@ let to_string_fmt x =
 			Buffer.add_string tmp tag;
 			Buffer.add_char tmp '>';
 			if newl then Buffer.add_char tmp '\n';
-		| PCData text ->
+		| PCData (text,_) ->
 			buffer_pcdata text;
 			if newl then Buffer.add_char tmp '\n';
 	in

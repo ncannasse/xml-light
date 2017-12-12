@@ -56,9 +56,9 @@ type dtd_item_type =
 	| TAttribute
 
 type token =
-	| Tag of string * (string * string) list * bool
-	| PCData of string
-	| Endtag of string
+	| Tag of string * (string * (string * pos)) list * bool * pos
+	| PCData of string * pos
+	| Endtag of string * pos
 	| DocType of (string * dtd_decl)
 	| Eof
 
@@ -150,7 +150,7 @@ rule token = parse
 		{
 			last_pos := lexeme_start lexbuf;
 			Buffer.reset tmp;
-			PCData (cdata lexbuf)
+			PCData (cdata lexbuf, pos lexbuf)
 		}
 	| "<!--"
 		{
@@ -170,29 +170,30 @@ rule token = parse
 			let tag = ident_name lexbuf in
 			ignore_spaces lexbuf;
 			close_tag lexbuf;
-			Endtag tag
+			Endtag (tag, pos lexbuf)
 		}
 	| '<' space*
 		{
+                        let pos = pos lexbuf in
 			last_pos := lexeme_start lexbuf;
 			let tag = ident_name lexbuf in
 			ignore_spaces lexbuf;
 			let attribs, closed = attributes lexbuf in
-			Tag(tag, attribs, closed)
+			Tag(tag, attribs, closed, pos)
 		}
 	| '&'
 		{
 			last_pos := lexeme_start lexbuf;
 			Buffer.reset tmp;
 			Buffer.add_string tmp (entity lexbuf);
-			PCData (pcdata lexbuf)
+			PCData (pcdata lexbuf, pos lexbuf)
 		}
 	| space* pcchar+
 		{
 			last_pos := lexeme_start lexbuf;
 			Buffer.reset tmp;
 			Buffer.add_string tmp (lexeme lexbuf);
-			PCData (pcdata lexbuf)
+			PCData (pcdata lexbuf, pos lexbuf)
 		}
 	| eof { Eof }
 	| _
@@ -324,20 +325,27 @@ and attribute = parse
 		{ error lexbuf EAttributeNameExpected }
 
 and attribute_data = parse
-	| space* '=' space* '"'
+	| space* '=' space*
 		{
 			Buffer.reset tmp;
 			last_pos := lexeme_end lexbuf;
-			dq_string lexbuf
+			dq_string' lexbuf
 		}
 	| space* '=' space* '\''
 		{
 			Buffer.reset tmp;
 			last_pos := lexeme_end lexbuf;
-			q_string lexbuf
+			q_string' lexbuf
 		}
 	| _ | eof
 		{ error lexbuf EAttributeValueExpected }
+
+and dq_string' = parse
+	| '"'
+		{
+                        let pos = pos lexbuf in
+                        dq_string lexbuf, pos
+		}
 
 and dq_string = parse
 	| '"'
@@ -353,6 +361,13 @@ and dq_string = parse
 		{
 			Buffer.add_char tmp (lexeme_char lexbuf 0);
 			dq_string lexbuf
+		}
+
+and q_string' = parse
+	| '\''
+		{
+                        let pos = pos lexbuf in
+                        q_string lexbuf, pos
 		}
 
 and q_string = parse
