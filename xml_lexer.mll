@@ -123,6 +123,7 @@ let break = ['\r']
 let space = [' ' '\t']
 let identchar =  ['A'-'Z' 'a'-'z' '_' '0'-'9' ':' '-']
 let entitychar = ['A'-'Z' 'a'-'z' '0'-'9']
+let hexdigit = ['A'-'F' 'a'-'f' '0'-'9']
 let pcchar = [^ '\r' '\n' '<' '>' '&']
 let cdata_start = ['c''C']['d''D']['a''A']['t''T']['a''A']
 
@@ -280,14 +281,15 @@ and entity = parse
 			with
 				Not_found -> "&" ^ ident
 		}
-  | '#' ['0'-'9']+ ';'
-    {
+	| "#x" hexdigit+ ';'
+	| '#' ['0'-'9']+ ';'
+		{
 			let ident = lexeme lexbuf in
 			try
 				Hashtbl.find idents (String.lowercase ident)
 			with
 				Not_found -> "&" ^ ident
-    }
+		}
 	| _ | eof
 		{ raise (Error EUnterminatedEntity) }
 
