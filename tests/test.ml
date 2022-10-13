@@ -21,9 +21,6 @@
  * MA 02110-1301 USA
  *)
 
-open Xml
-open Dtd
-
 let parse data =
 	match data.[0] with
 	| '#' -> Xml.parse_file (String.sub data 1 ((String.length data)-2))
