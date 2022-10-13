@@ -1,0 +1,9 @@
+(library
+ (name xml_light)
+ (public_name xml-light)
+ (flags -w -A)
+ (modules_without_implementation xml_light_types)
+ (wrapped false))
+
+(ocamllex xml_lexer)
+(ocamlyacc xml_parser)
