@@ -55,18 +55,18 @@ let check dtd =
 	in
 	let check_item = function
 		| DTDAttribute (tag,aname,atype,adef) ->
-			let utag = String.uppercase tag in
+			let utag = String.uppercase_ascii tag in
 			ftodo utag None;
-			fattrib utag (String.uppercase aname) (atype,adef)
+			fattrib utag (String.uppercase_ascii aname) (atype,adef)
 		| DTDElement (tag,etype) ->
-			let utag = String.uppercase tag in
+			let utag = String.uppercase_ascii tag in
 			fdone utag etype;
 			let check_type = function
 				| DTDEmpty -> ()
 				| DTDAny -> ()
 				| DTDChild x ->
 					let rec check_child = function
-						| DTDTag s -> ftodo (String.uppercase s) (Some utag)
+						| DTDTag s -> ftodo (String.uppercase_ascii s) (Some utag)
 						| DTDPCData -> ()
 						| DTDOptional c
 						| DTDZeroOrMore c
