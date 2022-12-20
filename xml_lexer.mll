@@ -276,7 +276,7 @@ and entity = parse
 		{
 			let ident = lexeme lexbuf in
 			try
-				Hashtbl.find idents (String.lowercase ident)
+				Hashtbl.find idents (String.lowercase_ascii ident)
 			with
 				Not_found -> "&" ^ ident
 		}
@@ -284,7 +284,7 @@ and entity = parse
     {
 			let ident = lexeme lexbuf in
 			try
-				Hashtbl.find idents (String.lowercase ident)
+				Hashtbl.find idents (String.lowercase_ascii ident)
 			with
 				Not_found -> "&" ^ ident
     }
