@@ -1,5 +1,4 @@
 opam-version: "2.0"
-version: "2.4"
 synopsis: "Xml-Light is a minimal XML parser & printer for OCaml"
 description: """
 It provide functions to parse an XML document into an OCaml data
@@ -7,6 +6,9 @@ structure, work with it, and print it back to an XML document. It
 support also DTD parsing and checking, and is entirely written in
 OCaml, hence it does not require additional C library.
 """
+homepage: "https://github.com/ncannasse/xml-light"
+authors: "https://github.com/ocaml/opam-repository/issues"
+bug-reports: "https://github.com/ncannasse/xml-light/issues"
 maintainer: "https://github.com/ocaml/opam-repository/issues"
 depends: [
   "ocaml" {>= "4.03"}
