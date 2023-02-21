@@ -6,6 +6,7 @@ structure, work with it, and print it back to an XML document. It
 support also DTD parsing and checking, and is entirely written in
 OCaml, hence it does not require additional C library.
 """
+license: "LGPL-2.1-or-later WITH OCaml-LGPL-linking-exception"
 homepage: "https://github.com/ncannasse/xml-light"
 authors: "https://github.com/ocaml/opam-repository/issues"
 bug-reports: "https://github.com/ncannasse/xml-light/issues"
