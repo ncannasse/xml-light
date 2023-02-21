@@ -1,5 +1,6 @@
-Xml-Light Version 2.4 :
------------------------
+# Xml-Light :
+
+[![build](https://github.com/ncannasse/xml-light/actions/workflows/build.yml/badge.svg)](https://github.com/ncannasse/xml-light/actions/workflows/build.yml)
 
   Xml Light is a minimal Xml parser & printer for OCaml.
   It provide few functions to parse a basic Xml document into
@@ -8,43 +9,45 @@ Xml-Light Version 2.4 :
 
   Xml Light has also support for DTD (Document Type Definition).
 
+## Install
 
-Install
--------
+```
+  dune build
+  dune install
+```
 
-dune build
-dune install
-
-Usage
------
+## Usage
 
 simple samples :
 
 
--- parse / print an xml string ---
+### parse / print an xml string
 
-let x = Xml.parse_string "<a href='url'>TEXT<begin/><end/></a>" in
-Printf.printf "XML formated = \n%s" (Xml.to_string_fmt x);
+```ocaml
+  let x = Xml.parse_string "<a href='url'>TEXT<begin/><end/></a>" in
+  Printf.printf "XML formated = \n%s" (Xml.to_string_fmt x);
+```
 
--- load an xml and a dtd , prove and print ---
+### load an xml and a dtd , prove and print
 
-let x = Xml.parse_file "myfile.xml" in
-let dtd = Dtd.parse_file "myfile.dtd" in
-let x = Dtd.prove (Dtd.check dtd) "start" x in
-print_endline (Xml.to_string x)
+```ocaml
+  let x = Xml.parse_file "myfile.xml" in
+  let dtd = Dtd.parse_file "myfile.dtd" in
+  let x = Dtd.prove (Dtd.check dtd) "start" x in
+  print_endline (Xml.to_string x)
+```
 
-
-Documentation
--------------
+## Documentation
 
 HTML documentation can be generated with ocamldoc :
 
-dune build @doc
+```
+  dune build @doc
+```
 
-you can also directly browse the MLI files to read it.
+You can also directly browse the MLI files to read it.
 
-Licence
--------
+## Licence
 
 Xml Light is distributed under the terms of the GNU Library General
 Public License, with the special exception on linking described
@@ -64,8 +67,10 @@ License. This exception does not however invalidate any other reasons
 why the executable file might be covered by the GNU Library General
 Public License.
 
-Credits
--------
+## Credits
+
 (c)2003-2005 Nicolas Cannasse (ncannasse@motion-twin.com)
+
 (c)2003-2005 Motion-Twin
+
 Some parts of this code source has an additionnal copyright to Jacques Garrigue
