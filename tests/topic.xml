@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE topic SYSTEM "topic-like.dtd">
+<topic id="topic-1">
+    <title>Topic title</title>
+    <body>
+        <p>This is un exemple of DITA <term>topic</term>.</p>
+        <p>...</p>
+    </body>
+</topic>

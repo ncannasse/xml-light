@@ -25,6 +25,20 @@ let parse data =
   match data.[0] with
     | '#' -> Xml.parse_file (String.sub data 1 (String.length data - 2))
     | _ -> Xml.parse_string data
+
+let test data =
+  try
+    let x = parse data in
+    print_endline "Parsing...";
+    print_endline (Xml.to_string_fmt x)
+  with
+    | Xml.Error msg -> Printf.printf "Xml error : %s\n" (Xml.error msg)
+    | Dtd.Parse_error msg ->
+        Printf.printf "Dtd parse error : %s\n" (Dtd.parse_error msg)
+    | Dtd.Check_error msg ->
+        Printf.printf "Dtd check error : %s\n" (Dtd.check_error msg)
+    | Dtd.Prove_error msg ->
+        Printf.printf "Dtd prove error : %s\n" (Dtd.prove_error msg)
 ;;
 
 let buf = ref "" in
@@ -33,21 +47,12 @@ print_endline
 try
   while true do
     match read_line () with
-      | "" when !buf <> "" -> (
+      | "" when !buf <> "" ->
           let data = !buf in
           buf := "";
-          try
-            let x = parse data in
-            print_endline "Parsing...";
-            print_endline (Xml.to_string_fmt x)
-          with
-            | Xml.Error msg -> Printf.printf "Xml error : %s\n" (Xml.error msg)
-            | Dtd.Parse_error msg ->
-                Printf.printf "Dtd parse error : %s\n" (Dtd.parse_error msg)
-            | Dtd.Check_error msg ->
-                Printf.printf "Dtd check error : %s\n" (Dtd.check_error msg)
-            | Dtd.Prove_error msg ->
-                Printf.printf "Dtd prove error : %s\n" (Dtd.prove_error msg))
+          test data
       | s -> buf := !buf ^ s ^ "\n"
   done
-with End_of_file -> print_endline "Exit."
+with End_of_file ->
+  test !buf;
+  print_endline "Exit."

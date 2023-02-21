@@ -1,0 +1,7 @@
+<!ELEMENT topic (title,body)>
+<!ATTLIST topic
+id NMTOKEN #REQUIRED>
+<!ELEMENT title (#PCDATA)>
+<!ELEMENT body (p)+>
+<!ELEMENT p (#PCDATA|term)*>
+<!ELEMENT term (#PCDATA)>
