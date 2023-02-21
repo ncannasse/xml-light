@@ -38,9 +38,8 @@
 (** An Xml node is either
 	[Element (tag-name, attributes, children)] or [PCData text] *)
 type xml = Xml_light_types.xml =
-	| Element of (string * (string * string) list * xml list)
-	| PCData of string
-(** {6 Xml Parsing} *)
+  | Element of (string * (string * string) list * xml list)
+  | PCData of string  (** {6 Xml Parsing} *)
 
 (** For easily parsing an Xml data source into an xml data structure,
 	you can use theses functions. But if you want advanced parsing usage,
@@ -79,28 +78,27 @@ val parse_string : string -> xml
 type error_pos = Xml_light_errors.error_pos
 
 type error_msg = Xml_light_errors.xml_error_msg =
-	| UnterminatedComment
-	| UnterminatedString
-	| UnterminatedEntity
-	| IdentExpected
-	| CloseExpected
-	| NodeExpected
-	| AttributeNameExpected
-	| AttributeValueExpected
-	| EndOfTagExpected of string
-	| EOFExpected
+  | UnterminatedComment
+  | UnterminatedString
+  | UnterminatedEntity
+  | IdentExpected
+  | CloseExpected
+  | NodeExpected
+  | AttributeNameExpected
+  | AttributeValueExpected
+  | EndOfTagExpected of string
+  | EOFExpected
 
 type error = error_msg * error_pos
 
 exception Error of error
-
 exception File_not_found of string
 
 (** Get a full error message from an Xml error. *)
 val error : error -> string
 
 (** Get the Xml error message as a string. *)
-val error_msg : error_msg -> string 
+val error_msg : error_msg -> string
 
 (** Get the line the error occured at. *)
 val line : error_pos -> int
@@ -128,7 +126,7 @@ val pcdata : xml -> string
 (** [attribs xdata] returns the attribute list of the xml node.
  First string if the attribute name, second string is attribute value.
  Raise {!Xml.Not_element} if the xml is not an element *)
-val attribs : xml -> (string * string) list 
+val attribs : xml -> (string * string) list
 
 (** [attrib xdata "href"] returns the value of the ["href"]
  attribute of the xml node (attribute matching is case-insensitive).
@@ -142,7 +140,7 @@ val attrib : xml -> string -> string
 val children : xml -> xml list
 
 (*** [enum xdata] returns the children enumeration of the xml node
- Raise {!Xml.Not_element} if the xml is not an element *)
+  Raise {!Xml.Not_element} if the xml is not an element *)
 (* val enum : xml -> xml Enum.t *)
 
 (** [iter f xdata] calls f on all children of the xml node.

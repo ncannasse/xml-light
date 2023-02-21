@@ -51,38 +51,37 @@ open Xml_light_errors
 
 (** {6 The DTD Types} *)
 type dtd_child = Xml_light_types.dtd_child =
-	| DTDTag of string
-	| DTDPCData
-	| DTDOptional of dtd_child
-	| DTDZeroOrMore of dtd_child
-	| DTDOneOrMore of dtd_child
-	| DTDChoice of dtd_child list
-	| DTDChildren of dtd_child list
+  | DTDTag of string
+  | DTDPCData
+  | DTDOptional of dtd_child
+  | DTDZeroOrMore of dtd_child
+  | DTDOneOrMore of dtd_child
+  | DTDChoice of dtd_child list
+  | DTDChildren of dtd_child list
 
 type dtd_element_type = Xml_light_types.dtd_element_type =
-	| DTDEmpty
-	| DTDAny
-	| DTDChild of dtd_child
+  | DTDEmpty
+  | DTDAny
+  | DTDChild of dtd_child
 
 type dtd_attr_default = Xml_light_types.dtd_attr_default =
-	| DTDDefault of string
-	| DTDRequired
-	| DTDImplied
-	| DTDFixed of string
+  | DTDDefault of string
+  | DTDRequired
+  | DTDImplied
+  | DTDFixed of string
 
 type dtd_attr_type = Xml_light_types.dtd_attr_type =
-	| DTDCData
-	| DTDNMToken
-	| DTDEnum of string list
-	| DTDID
-	| DTDIDRef
+  | DTDCData
+  | DTDNMToken
+  | DTDEnum of string list
+  | DTDID
+  | DTDIDRef
 
 type dtd_item = Xml_light_types.dtd_item =
-	| DTDAttribute of string * string * dtd_attr_type * dtd_attr_default
-	| DTDElement of string * dtd_element_type
+  | DTDAttribute of string * string * dtd_attr_type * dtd_attr_default
+  | DTDElement of string * dtd_element_type
 
 type dtd = dtd_item list
-
 type checked = Xml_light_dtd_check.checked
 
 (** {6 The DTD Functions} *)
@@ -136,30 +135,30 @@ val to_string : dtd_item -> string
 *)
 
 type parse_error_msg = Xml_light_errors.dtd_parse_error_msg =
-	| InvalidDTDDecl
-	| InvalidDTDElement
-	| InvalidDTDAttribute
-	| InvalidDTDTag
-	| DTDItemExpected
+  | InvalidDTDDecl
+  | InvalidDTDElement
+  | InvalidDTDAttribute
+  | InvalidDTDTag
+  | DTDItemExpected
 
 type check_error = Xml_light_errors.dtd_check_error =
-	| ElementDefinedTwice of string
-	| AttributeDefinedTwice of string * string
-	| ElementEmptyContructor of string
-	| ElementReferenced of string * string
-	| ElementNotDeclared of string
-	| WrongImplicitValueForID of string * string
+  | ElementDefinedTwice of string
+  | AttributeDefinedTwice of string * string
+  | ElementEmptyContructor of string
+  | ElementReferenced of string * string
+  | ElementNotDeclared of string
+  | WrongImplicitValueForID of string * string
 
 type prove_error = Xml_light_errors.dtd_prove_error =
-	| UnexpectedPCData
-	| UnexpectedTag of string
-	| UnexpectedAttribute of string
-	| InvalidAttributeValue of string
-	| RequiredAttribute of string
-	| ChildExpected of string
-	| EmptyExpected
-	| DuplicateID of string
-	| MissingID of string
+  | UnexpectedPCData
+  | UnexpectedTag of string
+  | UnexpectedAttribute of string
+  | InvalidAttributeValue of string
+  | RequiredAttribute of string
+  | ChildExpected of string
+  | EmptyExpected
+  | DuplicateID of string
+  | MissingID of string
 
 type parse_error = parse_error_msg * error_pos
 

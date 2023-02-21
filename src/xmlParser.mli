@@ -32,11 +32,11 @@
 type t
 
 (** Several kind of resources can contain Xml documents. *)
-type source = 
-	| SFile of string
-	| SChannel of in_channel
-	| SString of string
-	| SLexbuf of Lexing.lexbuf
+type source =
+  | SFile of string
+  | SChannel of in_channel
+  | SString of string
+  | SLexbuf of Lexing.lexbuf
 
 (** This function returns a new parser with default options. *)
 val make : unit -> t
@@ -68,7 +68,7 @@ val check_eof : t -> bool -> unit
 
 (** Once the parser is configurated, you can run the parser on a any kind
  of xml document source to parse its contents into an Xml data structure. *)
-val parse :  t -> source -> Xml_light_types.xml
+val parse : t -> source -> Xml_light_types.xml
 
 (** When several PCData elements are separed by a \n (or \r\n), you can
  either split the PCData in two distincts PCData or merge them with \n
