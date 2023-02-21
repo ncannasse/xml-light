@@ -22,44 +22,41 @@
  *)
 
 type error =
-	| EUnterminatedComment
-	| EUnterminatedString
-	| EIdentExpected
-	| ECloseExpected
-	| ENodeExpected
-	| EAttributeNameExpected
-	| EAttributeValueExpected
-	| EUnterminatedEntity
+  | EUnterminatedComment
+  | EUnterminatedString
+  | EIdentExpected
+  | ECloseExpected
+  | ENodeExpected
+  | EAttributeNameExpected
+  | EAttributeValueExpected
+  | EUnterminatedEntity
 
 type dtd_error =
-	| EInvalidDTDDecl
-	| EInvalidDTDTag
-	| EDTDItemExpected
-	| EInvalidDTDElement
-	| EInvalidDTDAttribute
+  | EInvalidDTDDecl
+  | EInvalidDTDTag
+  | EDTDItemExpected
+  | EInvalidDTDElement
+  | EInvalidDTDAttribute
 
 exception Error of error
 exception DTDError of dtd_error
 
-type dtd_decl =
-	| DTDFile of string
-	| DTDData of Xml_light_types.dtd
+type dtd_decl = DTDFile of string | DTDData of Xml_light_types.dtd
 
 type token =
-	| Tag of string * (string * string) list * bool
-	| PCData of string
-	| Endtag of string
-	| DocType of (string * dtd_decl)
-	| Eof
+  | Tag of string * (string * string) list * bool
+  | PCData of string
+  | Endtag of string
+  | DocType of (string * dtd_decl)
+  | Eof
 
 type pos = int * int * int * int
 
-val init : Lexing.lexbuf -> unit 
+val init : Lexing.lexbuf -> unit
 val close : Lexing.lexbuf -> unit
 val token : Lexing.lexbuf -> token
 val dtd : Lexing.lexbuf -> Xml_light_types.dtd
 val pos : Lexing.lexbuf -> pos
 val restore : pos -> unit
-
 val error_pos_of_pos : pos -> Xml_light_errors.error_pos
 val error_pos : Lexing.lexbuf -> Xml_light_errors.error_pos
