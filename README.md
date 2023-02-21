@@ -1,4 +1,6 @@
-# Xml-Light Version 2.4 :
+# Xml-Light :
+
+[![build](https://github.com/ncannasse/xml-light/actions/workflows/build.yml/badge.svg)](https://github.com/ncannasse/xml-light/actions/workflows/build.yml)
 
   Xml Light is a minimal Xml parser & printer for OCaml.
   It provide few functions to parse a basic Xml document into
@@ -6,7 +8,6 @@
   to an Xml document.
 
   Xml Light has also support for DTD (Document Type Definition).
-
 
 ## Install
 
