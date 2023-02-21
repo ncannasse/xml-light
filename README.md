@@ -70,5 +70,7 @@ Public License.
 ## Credits
 
 (c)2003-2005 Nicolas Cannasse (ncannasse@motion-twin.com)
+
 (c)2003-2005 Motion-Twin
+
 Some parts of this code source has an additionnal copyright to Jacques Garrigue
