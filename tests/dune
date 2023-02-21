@@ -1,3 +1,15 @@
-(test
- (name test)
+(executables
+ (names test check_dtd)
  (libraries xml-light))
+
+(rule
+ (alias runtest)
+ (action
+  (pipe-stdout
+   (cat %{dep:simple.xml})
+   (run ./test.exe))))
+
+(rule
+ (alias runtest)
+ (action
+  (run ./check_dtd.exe %{dep:topic-like.dtd} %{dep:topic.xml} topic)))
