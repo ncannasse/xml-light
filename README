@@ -12,14 +12,8 @@ Xml-Light Version 2.4 :
 Install
 -------
 
-make install
-
-by default, Xml Light is installed in the 'ocamlc -where' directory.
-you can change it by editing the Makefile.
-
-for Windows users, if you're using the MSVC version of ocaml and
-don't have cygwin tools installed, you can do : nmake all
-and then copy manually the files to the place you want.
+dune build
+dune install
 
 Usage
 -----
@@ -45,7 +39,7 @@ Documentation
 
 HTML documentation can be generated with ocamldoc :
 
-make doc
+dune build @doc
 
 you can also directly browse the MLI files to read it.
 
