@@ -22,40 +22,36 @@
  *)
 
 (** Xml Light
- 
-  Xml Light is a minimal Xml parser & printer for OCaml.
-  It provide few functions to parse a basic Xml document into
-  an OCaml data structure and to print back the data structures
-  to an Xml document.
 
-  Xml Light has also support for {b DTD} (Document Type Definition).
+    Xml Light is a minimal Xml parser & printer for OCaml. It provide few
+    functions to parse a basic Xml document into an OCaml data structure and to
+    print back the data structures to an Xml document.
 
-  {i (c)Copyright 2002-2003 Nicolas Cannasse}
-*)
+    Xml Light has also support for {b DTD} (Document Type Definition).
+
+    {i (c)Copyright 2002-2003 Nicolas Cannasse} *)
 
 (** {6 Xml Data Structure} *)
 
-(** An Xml node is either
-	[Element (tag-name, attributes, children)] or [PCData text] *)
+(** An Xml node is either [Element (tag-name, attributes, children)] or
+    [PCData text] *)
 type xml = Xml_light_types.xml =
   | Element of (string * (string * string) list * xml list)
   | PCData of string  (** {6 Xml Parsing} *)
 
-(** For easily parsing an Xml data source into an xml data structure,
-	you can use theses functions. But if you want advanced parsing usage,
-	please look at the {!XmlParser} module.
-	All the parsing functions can raise some exceptions, see the
-	{{:#exc}Exceptions} section for more informations. *)
+(** For easily parsing an Xml data source into an xml data structure, you can
+    use theses functions. But if you want advanced parsing usage, please look at
+    the {!XmlParser} module. All the parsing functions can raise some
+    exceptions, see the {{:#exc}Exceptions} section for more informations. *)
 
 (** Parse the named file into an Xml data structure. *)
 val parse_file : string -> xml
 
-(** Read the content of the in_channel and parse it into an Xml data
- structure. *)
+(** Read the content of the in_channel and parse it into an Xml data structure.
+*)
 val parse_in : in_channel -> xml
 
-(** Parse the string containing an Xml document into an Xml data
- structure. *)
+(** Parse the string containing an Xml document into an Xml data structure. *)
 val parse_string : string -> xml
 
 (** {6:exc Xml Exceptions} *)
@@ -115,53 +111,52 @@ exception Not_element of xml
 exception Not_pcdata of xml
 exception No_attribute of string
 
-(** [tag xdata] returns the tag value of the xml node.
- Raise {!Xml.Not_element} if the xml is not an element *)
+(** [tag xdata] returns the tag value of the xml node. Raise {!Xml.Not_element}
+    if the xml is not an element *)
 val tag : xml -> string
 
-(** [pcdata xdata] returns the PCData value of the xml node.
- Raise {!Xml.Not_pcdata} if the xml is not a PCData *)
+(** [pcdata xdata] returns the PCData value of the xml node. Raise
+    {!Xml.Not_pcdata} if the xml is not a PCData *)
 val pcdata : xml -> string
 
-(** [attribs xdata] returns the attribute list of the xml node.
- First string if the attribute name, second string is attribute value.
- Raise {!Xml.Not_element} if the xml is not an element *)
+(** [attribs xdata] returns the attribute list of the xml node. First string if
+    the attribute name, second string is attribute value. Raise
+    {!Xml.Not_element} if the xml is not an element *)
 val attribs : xml -> (string * string) list
 
-(** [attrib xdata "href"] returns the value of the ["href"]
- attribute of the xml node (attribute matching is case-insensitive).
- Raise {!Xml.No_attribute} if the attribute does not exists in the node's
- attribute list 
- Raise {!Xml.Not_element} if the xml is not an element *)
+(** [attrib xdata "href"] returns the value of the ["href"] attribute of the xml
+    node (attribute matching is case-insensitive). Raise {!Xml.No_attribute} if
+    the attribute does not exists in the node's attribute list Raise
+    {!Xml.Not_element} if the xml is not an element *)
 val attrib : xml -> string -> string
 
-(** [children xdata] returns the children list of the xml node
- Raise {!Xml.Not_element} if the xml is not an element *)
+(** [children xdata] returns the children list of the xml node Raise
+    {!Xml.Not_element} if the xml is not an element *)
 val children : xml -> xml list
 
 (*** [enum xdata] returns the children enumeration of the xml node
   Raise {!Xml.Not_element} if the xml is not an element *)
 (* val enum : xml -> xml Enum.t *)
 
-(** [iter f xdata] calls f on all children of the xml node.
- Raise {!Xml.Not_element} if the xml is not an element *)
+(** [iter f xdata] calls f on all children of the xml node. Raise
+    {!Xml.Not_element} if the xml is not an element *)
 val iter : (xml -> unit) -> xml -> unit
 
-(** [map f xdata] is equivalent to [List.map f (Xml.children xdata)]
- Raise {!Xml.Not_element} if the xml is not an element *)
+(** [map f xdata] is equivalent to [List.map f (Xml.children xdata)] Raise
+    {!Xml.Not_element} if the xml is not an element *)
 val map : (xml -> 'a) -> xml -> 'a list
 
 (** [fold f init xdata] is equivalent to
- [List.fold_left f init (Xml.children xdata)]
- Raise {!Xml.Not_element} if the xml is not an element *)
+    [List.fold_left f init (Xml.children xdata)] Raise {!Xml.Not_element} if the
+    xml is not an element *)
 val fold : ('a -> xml -> 'a) -> 'a -> xml -> 'a
 
 (** {6 Xml Printing} *)
 
-(** Print the xml data structure into a compact xml string (without
- any user-readable formating ). *)
+(** Print the xml data structure into a compact xml string (without any
+    user-readable formating ). *)
 val to_string : xml -> string
 
-(** Print the xml data structure into an user-readable string with
- tabs and lines break between different nodes. *)
+(** Print the xml data structure into an user-readable string with tabs and
+    lines break between different nodes. *)
 val to_string_fmt : xml -> string

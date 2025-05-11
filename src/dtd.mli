@@ -86,36 +86,35 @@ type checked = Xml_light_dtd_check.checked
 
 (** {6 The DTD Functions} *)
 
-(** Parse the named file into a Dtd data structure. Raise
-	{!Xml.File_not_found} if an error occured while opening the file. 
-	Raise {!Dtd.Parse_error} if parsing failed. *)
+(** Parse the named file into a Dtd data structure. Raise {!Xml.File_not_found}
+    if an error occured while opening the file. Raise {!Dtd.Parse_error} if
+    parsing failed. *)
 val parse_file : string -> dtd
 
-(** Read the content of the in_channel and parse it into a Dtd data
- structure. Raise {!Dtd.Parse_error} if parsing failed. *)
+(** Read the content of the in_channel and parse it into a Dtd data structure.
+    Raise {!Dtd.Parse_error} if parsing failed. *)
 val parse_in : in_channel -> dtd
 
-(** Parse the string containing a Dtd document into a Dtd data
- structure. Raise {!Dtd.Parse_error} if parsing failed. *)
+(** Parse the string containing a Dtd document into a Dtd data structure. Raise
+    {!Dtd.Parse_error} if parsing failed. *)
 val parse_string : string -> dtd
 
-(** Check the Dtd data structure declaration and return a checked
- DTD. Raise {!Dtd.Check_error} if the DTD checking failed. *)
+(** Check the Dtd data structure declaration and return a checked DTD. Raise
+    {!Dtd.Check_error} if the DTD checking failed. *)
 val check : dtd -> checked
 
-(** Prove an Xml document using a checked DTD and an entry point.
- The entry point is the first excepted tag of the Xml document,
- the returned Xml document has the same structure has the original
- one, excepted that non declared optional attributes have been set
- to their default value specified in the DTD.
- Raise {!Dtd.Check_error} [ElementNotDeclared] if the entry point
- is not found, raise {!Dtd.Prove_error} if the Xml document failed
- to be proved with the DTD. *)
+(** Prove an Xml document using a checked DTD and an entry point. The entry
+    point is the first excepted tag of the Xml document, the returned Xml
+    document has the same structure has the original one, excepted that non
+    declared optional attributes have been set to their default value specified
+    in the DTD. Raise {!Dtd.Check_error} [ElementNotDeclared] if the entry point
+    is not found, raise {!Dtd.Prove_error} if the Xml document failed to be
+    proved with the DTD. *)
 val prove : checked -> string -> xml -> xml
 
-(** Print a DTD element into a string. You can easily get a DTD
- document from a DTD data structure using for example
- [String.concat "\n" (List.map Dtd.to_string) my_dtd] *)
+(** Print a DTD element into a string. You can easily get a DTD document from a
+    DTD data structure using for example
+    [String.concat "\n" (List.map Dtd.to_string) my_dtd] *)
 val to_string : dtd_item -> string
 
 (** {6 The DTD Exceptions} *)
