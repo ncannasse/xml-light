@@ -354,11 +354,6 @@ and attribute_data = parse
 and dq_string = parse
 	| '"'
 		{ Buffer.contents tmp }
-	| '\\' [ '"' '\\' ]
-		{
-			Buffer.add_char tmp (lexeme_char lexbuf 1);
-			dq_string lexbuf
-		}
 	| eof
 		{ raise (Error EUnterminatedString) }
 	| _
@@ -370,11 +365,6 @@ and dq_string = parse
 and q_string = parse
 	| '\''
 		{ Buffer.contents tmp }
-	| '\\' [ '\'' '\\' ]
-		{
-			Buffer.add_char tmp (lexeme_char lexbuf 1);
-			q_string lexbuf
-		}
 	| eof
 		{ raise (Error EUnterminatedString) }
 	| _
