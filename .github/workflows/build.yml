@@ -1,13 +1,12 @@
-name: build
+name: Builds, tests & co
 
 on:
   pull_request:
   push:
     branches:
       - master
-  schedule:
-    # Prime the caches every Monday
-    - cron: 0 1 * * MON
+
+permissions: read-all
 
 jobs:
   build:
@@ -16,57 +15,61 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
+          - macos-latest
+          - windows-latest
         ocaml-compiler:
-          - 4.14.x
-        skip-test:
-          - false
+          - '5'
+          - '4.14'
+          - '4.03'
 
     runs-on: ${{ matrix.os }}
 
     steps:
-      - name: Set git to use LF
-        run: |
-          git config --global core.autocrlf false
-          git config --global core.eol lf
-          git config --global core.ignorecase false
+      - name: Checkout tree
+        uses: actions/checkout@v4
 
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Use OCaml ${{ matrix.ocaml-compiler }}
-        uses: ocaml/setup-ocaml@v2
+      - name: Set-up OCaml
+        uses: ocaml/setup-ocaml@v3
         with:
           ocaml-compiler: ${{ matrix.ocaml-compiler }}
-          dune-cache: ${{ matrix.os == 'ubuntu-latest' }}
-          opam-depext: ${{ !matrix.skip-test }}
-          opam-depext-flags: --with-test
 
-      - run: opam install . --best-effort
-        if: ${{ matrix.skip-test }}
-
-      - run: opam install . --with-test
-        if: ${{ !matrix.skip-test }}
+      - run: opam install . --deps-only --with-test
 
       - run: opam exec -- dune build
-        if: ${{ !matrix.skip-test }}
 
       - run: opam exec -- dune runtest
-        if: ${{ !matrix.skip-test }}
 
-      - run: opam exec -- git diff --exit-code
-        if: ${{ !matrix.skip-test }}
+      - run: opam install . --with-test
+
+  lint-doc:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout tree
+        uses: actions/checkout@v4
+      - name: Set-up OCaml
+        uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: '5'
+      - uses: ocaml/setup-ocaml/lint-doc@v3
 
   lint-fmt:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Use OCaml 4.14.x
-        uses: ocaml/setup-ocaml@v2
+      - name: Checkout tree
+        uses: actions/checkout@v4
+      - name: Set-up OCaml
+        uses: ocaml/setup-ocaml@v3
         with:
-          ocaml-compiler: 4.14.x
-          dune-cache: true
+          ocaml-compiler: '5'
+      - uses: ocaml/setup-ocaml/lint-fmt@v3
 
-      - name: Lint fmt
-        uses: ocaml/setup-ocaml/lint-fmt@v2
+  lint-opam:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout tree
+        uses: actions/checkout@v4
+      - name: Set-up OCaml
+        uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: '5'
+      - uses: ocaml/setup-ocaml/lint-opam@v3
