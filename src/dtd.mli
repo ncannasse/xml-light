@@ -26,30 +26,26 @@ open Xml_light_errors
 
 (** Xml Light DTD
 
-	This module provide several functions to create, check, and use DTD
-	to prove Xml documents : {ul
-	{li using the DTD types, you can directly create your own DTD structure}
-	{li the {!Dtd.check} function can then be used to check that all DTD
-		states have been declared, that no attributes are declared twice,
-		and so on.}
-	{li the {!Dtd.prove} function can be used to check an {!Xml} data
-		structure with a checked DTD. The function will return the
-		expanded Xml document or raise an exception if the DTD proving
-		fails.}
-	}
+    This module provide several functions to create, check, and use DTD to prove
+    Xml documents :
 
-	{i Note about ENTITIES:}
-	
-	While parsing Xml, PCDATA is always parsed and
-	the Xml entities &amp; &gt; &lt; &apos; &quot; are replaced by their
-	corresponding ASCII characters. For Xml attributes, theses can be
-	put between either double or simple quotes, and the backslash character
-	can be used to escape inner quotes. There is no support for CDATA Xml
-	nodes or PCDATA attributes declarations in DTD, and no support for
-	user-defined entities using the ENTITY DTD element.
-*)
+    - using the DTD types, you can directly create your own DTD structure
+    - the {!Dtd.check} function can then be used to check that all DTD states
+      have been declared, that no attributes are declared twice, and so on.
+    - the {!Dtd.prove} function can be used to check an {!Xml} data structure
+      with a checked DTD. The function will return the expanded Xml document or
+      raise an exception if the DTD proving fails.
 
-(** {6 The DTD Types} *)
+    {i Note about ENTITIES:}
+
+    While parsing Xml, PCDATA is always parsed and the Xml entities &amp; &gt;
+    &lt; &apos; &quot; are replaced by their corresponding ASCII characters. For
+    Xml attributes, theses can be put between either double or simple quotes,
+    and the backslash character can be used to escape inner quotes. There is no
+    support for CDATA Xml nodes or PCDATA attributes declarations in DTD, and no
+    support for user-defined entities using the ENTITY DTD element. *)
+
+(** {2 The DTD Types} *)
 type dtd_child = Xml_light_types.dtd_child =
   | DTDTag of string
   | DTDPCData
@@ -84,7 +80,7 @@ type dtd_item = Xml_light_types.dtd_item =
 type dtd = dtd_item list
 type checked = Xml_light_dtd_check.checked
 
-(** {6 The DTD Functions} *)
+(** {2 The DTD Functions} *)
 
 (** Parse the named file into a Dtd data structure. Raise {!Xml.File_not_found}
     if an error occured while opening the file. Raise {!Dtd.Parse_error} if
@@ -117,21 +113,20 @@ val prove : checked -> string -> xml -> xml
     [String.concat "\n" (List.map Dtd.to_string) my_dtd] *)
 val to_string : dtd_item -> string
 
-(** {6 The DTD Exceptions} *)
+(** {2 The DTD Exceptions} *)
 
-(** There is three types of DTD excecptions : {ul
-	{li {!Dtd.Parse_error} is raised when an error occured while
-	parsing a DTD document into a DTD data structure.}
-	{li {!Dtd.Check_error} is raised when an error occured while
-	checking a DTD data structure for completeness, or when the
-	prove entry point is not found when calling {!Dtd.prove}.}
-	{li {!Dtd.Prove_error} is raised when an error occured while
-	proving an Xml document.}
-	}
+(** There is three types of DTD excecptions :
 
-	Several string conversion functions are provided to enable you
-	to report errors to the user.
-*)
+    - {!Dtd.Parse_error} is raised when an error occured while parsing a DTD
+      document into a DTD data structure.
+    - {!Dtd.Check_error} is raised when an error occured while checking a DTD
+      data structure for completeness, or when the prove entry point is not
+      found when calling {!Dtd.prove}.
+    - {!Dtd.Prove_error} is raised when an error occured while proving an Xml
+      document.
+
+    Several string conversion functions are provided to enable you to report
+    errors to the user. *)
 
 type parse_error_msg = Xml_light_errors.dtd_parse_error_msg =
   | InvalidDTDDecl
