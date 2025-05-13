@@ -21,7 +21,7 @@
  * MA 02110-1301 USA
  *)
 
-(** Xml Light
+(** {1 Xml Light}
 
     Xml Light is a minimal Xml parser & printer for OCaml. It provide few
     functions to parse a basic Xml document into an OCaml data structure and to
@@ -29,15 +29,17 @@
 
     Xml Light has also support for {b DTD} (Document Type Definition).
 
-    {i (c)Copyright 2002-2003 Nicolas Cannasse} *)
+    {i (c) Copyright 2002-2003 Nicolas Cannasse} *)
 
-(** {6 Xml Data Structure} *)
+(** {2 Xml Data Structure} *)
 
 (** An Xml node is either [Element (tag-name, attributes, children)] or
     [PCData text] *)
 type xml = Xml_light_types.xml =
   | Element of (string * (string * string) list * xml list)
-  | PCData of string  (** {6 Xml Parsing} *)
+  | PCData of string
+
+(** {2 Xml Parsing} *)
 
 (** For easily parsing an Xml data source into an xml data structure, you can
     use theses functions. But if you want advanced parsing usage, please look at
@@ -54,22 +56,22 @@ val parse_in : in_channel -> xml
 (** Parse the string containing an Xml document into an Xml data structure. *)
 val parse_string : string -> xml
 
-(** {6:exc Xml Exceptions} *)
+(** {2:exc Xml Exceptions} *)
 
-(** Several exceptions can be raised when parsing an Xml document : {ul
-	{li {!Xml.Error} is raised when an xml parsing error occurs. the
-		{!Xml.error_msg} tells you which error occured during parsing
-		and the {!Xml.error_pos} can be used to retreive the document
-		location where the error occured at.}
-	{li {!Xml.File_not_found} is raised when and error occured while
-		opening a file with the {!Xml.parse_file} function or when a
-		DTD file declared by the Xml document is not found {i (see the
-		{!XmlParser} module for more informations on how to handle the
-		DTD file loading)}.}
-	}
-	If the Xml document is containing a DTD, then some other exceptions
-	can be raised, see the module {!Dtd} for more informations.
- *)
+(** Several exceptions can be raised when parsing an Xml document:
+
+    - {!Xml.Error} is raised when an xml parsing error occurs. the
+      {!val:Xml.error_msg} tells you which error occured during parsing and the
+      {!Xml.error_pos} can be used to retreive the document location where the
+      error occured at.
+    - {!Xml.File_not_found} is raised when and error occured while opening a
+      file with the {!Xml.parse_file} function or when a DTD file declared by
+      the Xml document is not found
+      {i (see the {!XmlParser} module for more informations on how to handle the
+         DTD file loading)}.
+
+    If the Xml document is containing a DTD, then some other exceptions can be
+    raised, see the module {!Dtd} for more informations. *)
 
 type error_pos = Xml_light_errors.error_pos
 
@@ -105,7 +107,7 @@ val range : error_pos -> int * int
 (** Get the absolute character range the error occured at. *)
 val abs_range : error_pos -> int * int
 
-(** {6 Xml Functions} *)
+(** {2 Xml Functions} *)
 
 exception Not_element of xml
 exception Not_pcdata of xml
@@ -151,7 +153,7 @@ val map : (xml -> 'a) -> xml -> 'a list
     xml is not an element *)
 val fold : ('a -> xml -> 'a) -> 'a -> xml -> 'a
 
-(** {6 Xml Printing} *)
+(** {2 Xml Printing} *)
 
 (** Print the xml data structure into a compact xml string (without any
     user-readable formating ). *)
