@@ -131,8 +131,9 @@ let error_pos lexbuf = error_pos_of_pos (pos lexbuf)
 let newline = ['\n']
 let break = ['\r']
 let space = [' ' '\t']
-let identchar =  ['A'-'Z' 'a'-'z' '_' '0'-'9' ':' '-']
-let entitychar = ['A'-'Z' 'a'-'z' '0'-'9']
+let namestartchar = ['A'-'Z' 'a'-'z' '_' ':']
+let namechar =  ['A'-'Z' 'a'-'z' '0'-'9' '_' ':' '-' '.']
+let name =  namestartchar namechar*
 let hexdigit = ['A'-'F' 'a'-'f' '0'-'9']
 let pcchar = [^ '\r' '\n' '<' '>' '&']
 let cdata_start = ['c''C']['d''D']['a''A']['t''T']['a''A']
@@ -283,7 +284,7 @@ and pcdata = parse
 		{ Buffer.contents tmp }
 
 and entity = parse
-	| entitychar+ ';'
+	| name ';'
 		{
 			let ident = lexeme lexbuf in
 			try
@@ -304,7 +305,7 @@ and entity = parse
 		{ raise (Error EUnterminatedEntity) }
 
 and ident_name = parse
-	| identchar+
+	| name
 		{ lexeme lexbuf }
 	| _ | eof
 		{ error lexbuf EIdentExpected }
@@ -330,7 +331,7 @@ and attributes = parse
 		}
 
 and attribute = parse
-	| identchar+
+	| name
 		{ lexeme lexbuf }
 	| _ | eof
 		{ error lexbuf EAttributeNameExpected }
@@ -574,7 +575,7 @@ and dtd_element_token = parse
 		{ PLUS }
 	| '?'
 		{ QUESTION }
-	| identchar+
+	| name
 		{ IDENT (lexeme lexbuf) }
 	| _ | eof
 		{ dtd_error lexbuf EInvalidDTDElement }
@@ -609,7 +610,7 @@ and dtd_attr_type = parse
 		{ dtd_error lexbuf EInvalidDTDAttribute }
 
 and dtd_attr_enum = parse
-	| identchar+
+	| name
 		{
 			let v = lexeme lexbuf in
 			ignore_spaces lexbuf;
