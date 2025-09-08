@@ -20,7 +20,7 @@ jobs:
         ocaml-compiler:
           - '5'
           - '4.14'
-          - '4.03'
+          - '4.08'
 
     runs-on: ${{ matrix.os }}
 
