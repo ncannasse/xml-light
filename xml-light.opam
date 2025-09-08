@@ -13,7 +13,7 @@ homepage: "https://github.com/ncannasse/xml-light"
 bug-reports: "https://github.com/ncannasse/xml-light/issues"
 depends: [
   "dune" {>= "3.0"}
-  "ocaml" {> "4.03"}
+  "ocaml" {> "4.08"}
   "odoc" {with-doc}
 ]
 build: [
