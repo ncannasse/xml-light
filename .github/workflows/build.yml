@@ -20,7 +20,15 @@ jobs:
         ocaml-compiler:
           - '5'
           - '4.14'
-          - '4.08'
+        include:
+          - os: ubuntu-latest
+            ocaml-compiler: "4.08"
+          - os: macos-latest
+            ocaml-compiler: "4.10"
+          - os: macos-latest
+            ocaml-compiler: "4.12"
+          - os: windows-latest
+            ocaml-compiler: "4.13"
 
     runs-on: ${{ matrix.os }}
 
